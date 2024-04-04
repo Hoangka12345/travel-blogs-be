@@ -2,7 +2,12 @@ import { MessageBody, SubscribeMessage, WebSocketGateway, WebSocketServer } from
 import { Server } from 'socket.io'
 import { Notification } from 'src/models/notification.model';
 
-@WebSocketGateway({ namespace: 'notification' })
+@WebSocketGateway({
+  namespace: 'notification', cors: {
+    origin: '*',
+    methods: ['GET', 'POST'],
+  },
+})
 export class NotificationGateway {
   @WebSocketServer()
   server: Server
