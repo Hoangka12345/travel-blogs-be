@@ -8,9 +8,10 @@ declare const module: any;
 async function bootstrap() {
   dotenv.config()
 
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create(AppModule,);
 
   app.useGlobalPipes(new ValidationPipe())
+  app.enableCors();
   const port = process.env.PORT || 5000
   await app.listen(port);
 

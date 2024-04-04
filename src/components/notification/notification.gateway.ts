@@ -5,7 +5,7 @@ import { Notification } from 'src/models/notification.model';
 @WebSocketGateway({
   namespace: 'notification', cors: {
     origin: '*',
-    methods: ['GET', 'POST'],
+    methods: ['GET', 'POST'], ws: true, changeOrigin: true,
   },
 })
 export class NotificationGateway {
