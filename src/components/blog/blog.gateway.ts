@@ -6,7 +6,7 @@ export class BlogGateway {
   @WebSocketServer()
   server: Server
 
-  @SubscribeMessage('message')
+  // @SubscribeMessage('message')
   handleMessage(client: any, payload: any): string {
     return 'Hello world!';
   }

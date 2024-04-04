@@ -2,13 +2,14 @@ import { MessageBody, SubscribeMessage, WebSocketGateway, WebSocketServer } from
 import { Server } from 'socket.io'
 import { Notification } from 'src/models/notification.model';
 
-@WebSocketGateway()
+@WebSocketGateway({ namespace: 'notification' })
 export class NotificationGateway {
   @WebSocketServer()
   server: Server
 
   @SubscribeMessage('message')
   handleMessage(client: any, payload: any): string {
+    console.log(111111, 'hihihi');
     return 'Hello world!';
   }
 
