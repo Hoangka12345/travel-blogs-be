@@ -20,6 +20,11 @@ export class UserController {
         return this.userService.getProfile(userId)
     }
 
+    @Get("top-users")
+    async getTopContributors() {
+        return this.userService.getTopContributors()
+    }
+
     @UseGuards(AuthGuard)
     @Get("get-saved-blog")
     async getSavedBlogs(
@@ -51,19 +56,28 @@ export class UserController {
     }
 
     @UseGuards(AuthGuard)
-    @Put("setting")
+    @Put("update-avatar")
     @UseInterceptors(FileInterceptor('avatar'))
-    async setting(
-        @Body() data: SettingDto,
+    async updateAvatar(
         @Request() request: ExpressRequest,
         @UploadedFile() avatar?: Express.Multer.File
     ) {
         const { _id } = request['user']
         if (avatar.size !== 0) {
             const avatarUpload = await this.cloudinaryService.uploadAvatar(avatar)
-            return this.userService.setting(_id, data, avatarUpload)
-        } else {
-            return this.userService.setting(_id, data)
+            return this.userService.updateUserAvatar(_id, avatarUpload)
         }
+    }
+
+    @UseGuards(AuthGuard)
+    @Put("update-password")
+    @UseInterceptors(FileInterceptor('avatar'))
+    async updatePassword(
+        @Body() data: SettingDto,
+        @Request() request: ExpressRequest,
+    ) {
+        const { _id } = request['user']
+        return this.userService.updateUserPassword(_id, data)
+
     }
 }

@@ -19,6 +19,24 @@ export class UserService {
         private readonly blogRepo: BlogRepository,
     ) { }
 
+    async getTopContributors(): Promise<I_Response<User>> {
+        try {
+            const users = await this.userRepo.getTopContributors()
+            if (users[0]) {
+                return {
+                    statusCode: HttpStatus.OK,
+                    data: users
+                }
+            } return {
+                statusCode: HttpStatus.OK,
+                data: []
+            }
+        } catch (error) {
+            console.log(error);
+            throw new InternalServerErrorException
+        }
+    }
+
     async getProfile(userId: string): Promise<I_Response<any>> {
         try {
             const user = await this.userRepo.findOneById(userId)
@@ -127,60 +145,57 @@ export class UserService {
         }
     }
 
-    async updateUserPassword(userId: string, data: SettingDto, password: string): Promise<User> {
+    async updateUserPassword(userId: string, data: SettingDto): Promise<I_Response<User>> {
         const { oldPassword, newPassword } = data
-        const checkPassword = await this.authService.comparePassword(oldPassword, password)
-        if (!checkPassword) {
-            throw new HttpException("Mật khẩu không đúng!", HttpStatus.CONFLICT)
+        const userInfo = await this.getUserInfo(userId)
+        if (userInfo) {
+            const { password } = userInfo
+            const checkPassword = await this.authService.comparePassword(oldPassword, password)
+            console.log(checkPassword);
+
+            if (!checkPassword) {
+                throw new HttpException("Mật khẩu không đúng!", HttpStatus.CONFLICT)
+            }
+            const newHashPassword = await this.authService.hashPassword(newPassword)
+            if (newHashPassword) {
+                try {
+                    const user = await this.userRepo.updateById(userId, { password: newHashPassword })
+                    if (user) {
+                        return {
+                            statusCode: HttpStatus.OK,
+                            message: "Thay đổi mật khẩu thành công"
+                        }
+                    } throw new InternalServerErrorException
+                } catch (error) {
+                    console.log("err in update user's password: ", error);
+                    throw new InternalServerErrorException
+                }
+            }
         }
-        const newHashPassword = await this.authService.hashPassword(newPassword)
-        if (newHashPassword) {
+    }
+
+    async updateUserAvatar(userId: string, newAvatar?: string): Promise<I_Response<User>> {
+        if (!newAvatar) {
+            throw new HttpException("vui lòng chọn avatar!", HttpStatus.NO_CONTENT)
+        }
+        const userInfo = await this.getUserInfo(userId)
+        if (userInfo) {
+            const { avatar } = userInfo
             try {
-                const user = await this.userRepo.updateById(userId, { password: newHashPassword })
-                return user
+                const user = await this.userRepo.updateById(userId, { avatar: newAvatar })
+                if (user) {
+                    await this.cloudinaryService.deleteFile(avatar)
+                    return {
+                        statusCode: HttpStatus.OK,
+                        message: "thay đổi avatar thành công!",
+                        data: user
+                    }
+                }
             } catch (error) {
-                console.log("err in update user's password: ", error);
+                console.log("err in update user's avatar: ", error);
                 throw new InternalServerErrorException
             }
         }
     }
 
-    async updateUserAvatar(userId: string, avatar: string, newAvatar: String): Promise<User> {
-        try {
-            const user = await this.userRepo.updateById(userId, { avatar: newAvatar })
-            await this.cloudinaryService.deleteFile(avatar)
-            return user
-        } catch (error) {
-            console.log("err in update user's avatar: ", error);
-            throw new InternalServerErrorException
-        }
-    }
-
-    async updateUserPasswordAndAvatar(userId: string, data: SettingDto, password: string, avatar: string, newAvatar: string): Promise<User> {
-        const userUpdatePassword = await this.updateUserPassword(userId, data, password)
-        if (userUpdatePassword) {
-            const userUpdateAvatar = await this.updateUserAvatar(userId, avatar, newAvatar)
-            if (userUpdateAvatar) {
-                return userUpdateAvatar
-            }
-        }
-    }
-
-    async setting(userId: string, data: SettingDto, newAvatar?: string): Promise<I_Response<User>> {
-        const userInfo = await this.getUserInfo(userId)
-        if (userId) {
-            const { password, avatar } = userInfo
-            const { oldPassword, newPassword } = data
-            if (oldPassword && newPassword && !newAvatar) {
-                const user = await this.updateUserPassword(userId, data, password)
-                if (user) return { statusCode: HttpStatus.OK }
-            } else if (!oldPassword && !newPassword && newAvatar) {
-                const user = await this.updateUserAvatar(userId, avatar, newAvatar)
-                if (user) return { statusCode: HttpStatus.OK }
-            } else if (oldPassword && newPassword && newAvatar) {
-                const user = await this.updateUserPasswordAndAvatar(userId, data, password, avatar, newAvatar)
-                if (user) return { statusCode: HttpStatus.OK }
-            }
-        }
-    }
 }

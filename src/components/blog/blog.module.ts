@@ -14,6 +14,7 @@ import { User, UserSchema } from 'src/models/user.model';
 import { AuthService } from '../auth/auth.service';
 import { AuthRepository } from 'src/repositories/auth.repository';
 import { UserModule } from '../user/user.module';
+import { BlogGateway } from './blog.gateway';
 
 @Module({
   imports: [
@@ -33,7 +34,8 @@ import { UserModule } from '../user/user.module';
     UserService,
     UserRepository,
     AuthService,
-    AuthRepository],
-  exports: [BlogService, BlogRepository, MongooseModule],
+    AuthRepository,
+    BlogGateway],
+  exports: [BlogService, BlogRepository],
 })
 export class BlogModule { }

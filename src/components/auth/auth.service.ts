@@ -35,32 +35,34 @@ export class AuthService {
         }
     }
 
-    async login(data: LoginDto) {
+    async login(data: LoginDto): Promise<any> {
         try {
-            const user = await this.authRepo.findOneByCondition({ email: data.email })
+            const user = await this.authRepo.findOneByCondition({ email: data.email });
             if (!user) {
-                throw new HttpException("Tài khoản không hợp lệ!", HttpStatus.CONFLICT)
+                throw new HttpException("Tài khoản không hợp lệ!", HttpStatus.CONFLICT);
             }
-            const checkPassword = await this.comparePassword(data.password, user.password)
+
+            const checkPassword = await this.comparePassword(data.password, user.password);
             if (!checkPassword) {
-                throw new HttpException("Tài khoản không hợp lệ!", HttpStatus.CONFLICT)
+                throw new HttpException("Mật khẩu không đúng!", HttpStatus.UNAUTHORIZED);
             }
 
-            const { _id, fullName, avatar } = user
-            const userInfo = { _id, fullName, avatar }
+            const { _id, fullName, avatar } = user;
+            const userInfo = { _id, fullName, avatar };
 
-            const access_token = jwt.sign(userInfo, process.env.ACCESS_TOKEN_SECRET_KEY, { expiresIn: '10m' })
-            const refresh_token = jwt.sign(userInfo, process.env.REFRESH_TOKEN_SECRET_KEY, { expiresIn: '1y' })
+            const access_token = jwt.sign(userInfo, process.env.ACCESS_TOKEN_SECRET_KEY, { expiresIn: '10m' });
+            const refresh_token = jwt.sign(userInfo, process.env.REFRESH_TOKEN_SECRET_KEY, { expiresIn: '1y' });
+
             return {
                 statusCode: HttpStatus.OK,
                 access_token,
                 refresh_token,
                 user: userInfo
-            }
+            };
         } catch (error) {
-
+            // Bắt và xử lý exception ở đây nếu cần
+            throw error;
         }
-
     }
 
     async hashPassword(pw: string): Promise<string> {

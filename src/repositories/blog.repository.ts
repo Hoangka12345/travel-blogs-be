@@ -241,7 +241,13 @@ export class BlogRepository extends BaseRepository<Blog> {
             {
                 new: true
             },
-        )
+        ).populate({
+            path: 'comments',
+            populate: {
+                path: 'user',
+                model: 'User'
+            }
+        })
     }
 
     async removeComment(blogId: string, commentId: string) {

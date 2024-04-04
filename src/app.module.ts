@@ -8,6 +8,7 @@ import { CloudinaryModule } from './components/cloudinary/cloudinary.module';
 import { BlogModule } from './components/blog/blog.module';
 import { CommentModule } from './components/comment/comment.module';
 import { UserModule } from './components/user/user.module';
+import { NotificationModule } from './components/notification/notification.module';
 
 @Module({
   imports: [
@@ -21,6 +22,7 @@ import { UserModule } from './components/user/user.module';
     BlogModule,
     CommentModule,
     UserModule,
+    NotificationModule,
   ],
   controllers: [AppController],
   providers: [AppService, CloudinaryService],

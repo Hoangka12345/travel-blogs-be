@@ -8,13 +8,15 @@ import { CommentService } from '../comment/comment.service';
 import { RemoveCommentDto } from 'src/dtos/remove-comment.dto';
 import { UserService } from '../user/user.service';
 import mongoose from 'mongoose';
+import { BlogGateway } from './blog.gateway';
 
 @Injectable()
 export class BlogService {
     constructor(
         private readonly blogRepo: BlogRepository,
         private readonly commentService: CommentService,
-        private readonly userService: UserService
+        private readonly userService: UserService,
+        private readonly blogGateway: BlogGateway,
     ) { }
 
     convertLetter(string: string) {
@@ -121,15 +123,17 @@ export class BlogService {
     }
 
     async addComment(blogId: string, content: string, userId: string): Promise<I_Response<Blog>> {
-        const checkBlog = this.checkExistedBlog(blogId)
+        const checkBlog = await this.checkExistedBlog(blogId)
         if (!checkBlog) {
             throw new ConflictException
         }
         try {
             const comment = await this.commentService.createComment(blogId, content, userId)
             if (comment) {
-                const blog = this.blogRepo.addComment(blogId, comment._id)
+                const blog = await this.blogRepo.addComment(blogId, comment._id)
                 if (blog) {
+                    const { comments } = blog
+                    this.blogGateway.handleComment(comments)
                     return {
                         statusCode: HttpStatus.OK
                     }
@@ -162,8 +166,10 @@ export class BlogService {
 
     async addReaction(blogId: string, userId: string): Promise<I_Response<Blog>> {
         try {
-            const blog = this.blogRepo.addReaction(blogId, userId)
+            const blog = await this.blogRepo.addReaction(blogId, userId)
             if (blog) {
+                const { reactions } = blog
+                this.blogGateway.handleReaction(reactions.length)
                 return {
                     statusCode: HttpStatus.OK
                 }
@@ -176,7 +182,7 @@ export class BlogService {
 
     async removeReaction(blogId: string, userId: string): Promise<I_Response<Blog>> {
         try {
-            const blog = this.blogRepo.removeReaction(blogId, userId)
+            const blog = await this.blogRepo.removeReaction(blogId, userId)
             if (blog) {
                 return {
                     statusCode: HttpStatus.OK

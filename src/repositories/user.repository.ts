@@ -18,6 +18,30 @@ export class UserRepository extends BaseRepository<User> {
         super(userModel)
     }
 
+    async getTopContributors() {
+        return await this.userModel.aggregate([
+            {
+                $addFields: {
+                    totalBlogs: { $size: "$blogs" }
+                }
+            },
+            {
+                $sort: { totalBlogs: -1 }
+            },
+            {
+                $project: {
+                    fullName: 1,
+                    avatar: 1,
+                    createdAt: 1,
+                    totalBlogs: 1
+                }
+            },
+            {
+                $limit: 5
+            }
+        ]);
+    }
+
     async getSavedBlogs(userId: string) {
 
         return await this.userModel.aggregate([
