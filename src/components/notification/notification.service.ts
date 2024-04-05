@@ -5,12 +5,14 @@ import { Blog } from 'src/models/blog.model';
 import { Notification } from 'src/models/notification.model';
 import { BlogRepository } from 'src/repositories/blog.repository';
 import { NotificationRepository } from 'src/repositories/notification.repository';
+import { SocketGateway } from '../socket/socket.gateway';
 
 @Injectable()
 export class NotificationService {
     constructor(
         private readonly notificationRepo: NotificationRepository,
-        private readonly blogRepo: BlogRepository
+        private readonly blogRepo: BlogRepository,
+        private readonly socketGateway: SocketGateway,
     ) { }
 
     async getNotifications(userId: string): Promise<I_Response<Notification>> {
@@ -50,6 +52,8 @@ export class NotificationService {
             try {
                 const notification = await this.notificationRepo.create({ ...data, recipient: user, sender: userId })
                 if (notification) {
+                    const notifications = await this.getNotifications(user)
+                    this.socketGateway.handleNotification({ userId: user, notifications: notifications.data as Notification[] })
                     return {
                         statusCode: HttpStatus.OK,
                         data: notification

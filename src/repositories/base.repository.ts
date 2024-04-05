@@ -30,7 +30,7 @@ export class BaseRepository<T extends Document> {
         if (populateField && selectFields) {
             query.populate(populateField, selectFields)
         }
-        return await query.lean();
+        return await query.sort({ createdAt: -1 }).lean();
     }
 
     public async findOneById(_id: string) {

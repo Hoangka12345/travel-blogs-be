@@ -6,6 +6,8 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { Notification, NotificationSchema } from 'src/models/notification.model';
 import { BlogRepository } from 'src/repositories/blog.repository';
 import { Blog, BlogSchema } from 'src/models/blog.model';
+import { SocketGateway } from '../socket/socket.gateway';
+import { SocketService } from '../socket/socket.service';
 
 @Module({
   imports: [
@@ -15,6 +17,7 @@ import { Blog, BlogSchema } from 'src/models/blog.model';
     ])
   ],
   controllers: [NotificationController],
-  providers: [NotificationService, NotificationRepository, BlogRepository]
+  providers: [NotificationService, NotificationRepository, BlogRepository, SocketGateway, SocketService],
+  exports: [NotificationService, NotificationRepository]
 })
 export class NotificationModule { }

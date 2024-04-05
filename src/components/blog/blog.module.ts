@@ -14,6 +14,10 @@ import { User, UserSchema } from 'src/models/user.model';
 import { AuthService } from '../auth/auth.service';
 import { AuthRepository } from 'src/repositories/auth.repository';
 import { SocketGateway } from '../socket/socket.gateway';
+import { SocketService } from '../socket/socket.service';
+import { NotificationService } from '../notification/notification.service';
+import { Notification, NotificationSchema } from 'src/models/notification.model';
+import { NotificationRepository } from 'src/repositories/notification.repository';
 
 @Module({
   imports: [
@@ -21,6 +25,7 @@ import { SocketGateway } from '../socket/socket.gateway';
       { name: Blog.name, schema: BlogSchema },
       { name: Comment.name, schema: CommentSchema },
       { name: User.name, schema: UserSchema },
+      { name: Notification.name, schema: NotificationSchema },
     ]),
   ],
   controllers: [BlogController],
@@ -34,7 +39,10 @@ import { SocketGateway } from '../socket/socket.gateway';
     UserRepository,
     AuthService,
     AuthRepository,
-    SocketGateway],
+    SocketGateway,
+    SocketService,
+    NotificationService,
+    NotificationRepository],
   exports: [BlogService, BlogRepository],
 })
 export class BlogModule { }

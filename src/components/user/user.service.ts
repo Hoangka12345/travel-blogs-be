@@ -151,7 +151,6 @@ export class UserService {
         if (userInfo) {
             const { password } = userInfo
             const checkPassword = await this.authService.comparePassword(oldPassword, password)
-            console.log(checkPassword);
 
             if (!checkPassword) {
                 throw new HttpException("Mật khẩu không đúng!", HttpStatus.CONFLICT)

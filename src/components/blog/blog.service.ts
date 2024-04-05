@@ -7,6 +7,7 @@ import { CommentService } from '../comment/comment.service';
 import { RemoveCommentDto } from 'src/dtos/remove-comment.dto';
 import { UserService } from '../user/user.service';
 import { SocketGateway } from '../socket/socket.gateway';
+import { NotificationService } from '../notification/notification.service';
 
 @Injectable()
 export class BlogService {
@@ -15,6 +16,7 @@ export class BlogService {
         private readonly commentService: CommentService,
         private readonly userService: UserService,
         private readonly socketGateway: SocketGateway,
+        private readonly notificationService: NotificationService
     ) { }
 
     convertLetter(string: string) {
@@ -166,7 +168,7 @@ export class BlogService {
         try {
             const blog = await this.blogRepo.addReaction(blogId, userId)
             if (blog) {
-                const { reactions } = blog
+                const { user, reactions } = blog
                 this.socketGateway.handleReaction(reactions.length)
                 return {
                     statusCode: HttpStatus.OK

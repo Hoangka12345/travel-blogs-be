@@ -107,7 +107,7 @@ export class UserRepository extends BaseRepository<User> {
         return await this.userModel.findOneAndUpdate({ _id: new mongoose.Types.ObjectId(userId) },
             {
                 $pull: {
-                    savedBlogs: blogId
+                    savedBlogs: new mongoose.Types.ObjectId(blogId)
                 }
             },
             {

@@ -48,7 +48,7 @@ export class UserController {
     @UseGuards(AuthGuard)
     @Put("remove-saved-blog")
     async removeBlogToSavedBlog(
-        @Body() blogId: string,
+        @Body("blogId") blogId: string,
         @Request() request: ExpressRequest
     ) {
         const { _id } = request['user']

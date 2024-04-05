@@ -16,58 +16,53 @@ export class BlogRepository extends BaseRepository<Blog> {
     async getBlogsWhenLogin(regex: string, userId: string, page: number): Promise<Blog[]> {
         return await this.blogModel.aggregate([
             {
-                $match: { address: { $regex: regex, $options: 'i' } }
-            },
-            {
                 $addFields: {
-                    isLike: {
-                        $cond: [{ $in: [new mongoose.Types.ObjectId(userId), "$reactions"] }, true, false]
-                    }
-                }
+                    userId: new mongoose.Types.ObjectId(userId),
+                },
             },
             {
                 $lookup: {
-                    from: "users",
-                    localField: "user",
-                    foreignField: "_id",
-                    as: "userInfo"
-                }
+                    from: 'users',
+                    localField: 'userId',
+                    foreignField: '_id',
+                    as: 'userInfo',
+                },
             },
             {
-                $unwind: "$userInfo"
+                $unwind: '$userInfo',
             },
             {
                 $addFields: {
                     isSaved: {
-                        $cond: [{ $in: [userId, "$userInfo.savedBlogs"] }, true, false]
-                    }
-                }
+                        $in: ['$_id', '$userInfo.savedBlogs'],
+                    },
+                },
             },
             {
-                $group: {
-                    _id: '$_id',
-                    address: { $first: "$address" },
-                    country: { $first: "$country" },
-                    city: { $first: "$city" },
-                    content: { $first: "$content" },
-                    images: { $first: "$images" },
-                    createdAt: { $first: "$createdAt" },
-                    isLike: { $first: "$isLike" },
-                    isSaved: { $first: "$isSaved" },
-                    user: {
-                        $first: {
-                            _id: "$userInfo._id",
-                            fullName: "$userInfo.fullName",
-                            avatar: "$userInfo.avatar"
-                        }
-                    }
-                }
+                $lookup: {
+                    from: 'users',
+                    localField: 'user',
+                    foreignField: '_id',
+                    as: 'user',
+                },
+            },
+            {
+                $unwind: "$user"
+            },
+            {
+                $project: {
+                    userId: 0,
+                    userInfo: 0
+                },
             },
             {
                 $skip: (page - 1) * 5
             },
             {
                 $limit: 5
+            },
+            {
+                $sort: { createdAt: -1 }
             }
         ]).exec()
     }
