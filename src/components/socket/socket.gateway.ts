@@ -1,8 +1,10 @@
-import { MessageBody, SubscribeMessage, WebSocketGateway, WebSocketServer } from '@nestjs/websockets';
+import { Injectable } from '@nestjs/common';
+import { MessageBody, WebSocketGateway, WebSocketServer } from '@nestjs/websockets';
 import { Server } from 'socket.io'
 
-@WebSocketGateway()
-export class BlogGateway {
+@Injectable()
+@WebSocketGateway({ cors: true, })
+export class SocketGateway {
   @WebSocketServer()
   server: Server
 

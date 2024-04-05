@@ -4,7 +4,6 @@ import { NotificationService } from './notification.service';
 import { NotificationRepository } from 'src/repositories/notification.repository';
 import { MongooseModule } from '@nestjs/mongoose';
 import { Notification, NotificationSchema } from 'src/models/notification.model';
-import { NotificationGateway } from './notification.gateway';
 import { BlogRepository } from 'src/repositories/blog.repository';
 import { Blog, BlogSchema } from 'src/models/blog.model';
 
@@ -16,6 +15,6 @@ import { Blog, BlogSchema } from 'src/models/blog.model';
     ])
   ],
   controllers: [NotificationController],
-  providers: [NotificationService, NotificationRepository, NotificationGateway, BlogRepository]
+  providers: [NotificationService, NotificationRepository, BlogRepository]
 })
 export class NotificationModule { }

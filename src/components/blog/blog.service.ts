@@ -1,14 +1,12 @@
 import { ConflictException, HttpException, HttpStatus, Injectable, InternalServerErrorException } from '@nestjs/common';
 import { BlogDto } from 'src/dtos/blog.dto';
-import { CommentDto } from 'src/dtos/comment.dto';
 import { I_Response } from 'src/interfaces/response-data.interface';
 import { Blog } from 'src/models/blog.model';
 import { BlogRepository } from 'src/repositories/blog.repository';
 import { CommentService } from '../comment/comment.service';
 import { RemoveCommentDto } from 'src/dtos/remove-comment.dto';
 import { UserService } from '../user/user.service';
-import mongoose from 'mongoose';
-import { BlogGateway } from './blog.gateway';
+import { SocketGateway } from '../socket/socket.gateway';
 
 @Injectable()
 export class BlogService {
@@ -16,7 +14,7 @@ export class BlogService {
         private readonly blogRepo: BlogRepository,
         private readonly commentService: CommentService,
         private readonly userService: UserService,
-        private readonly blogGateway: BlogGateway,
+        private readonly socketGateway: SocketGateway,
     ) { }
 
     convertLetter(string: string) {
@@ -133,7 +131,7 @@ export class BlogService {
                 const blog = await this.blogRepo.addComment(blogId, comment._id)
                 if (blog) {
                     const { comments } = blog
-                    this.blogGateway.handleComment(comments)
+                    this.socketGateway.handleComment(comments)
                     return {
                         statusCode: HttpStatus.OK
                     }
@@ -169,7 +167,7 @@ export class BlogService {
             const blog = await this.blogRepo.addReaction(blogId, userId)
             if (blog) {
                 const { reactions } = blog
-                this.blogGateway.handleReaction(reactions.length)
+                this.socketGateway.handleReaction(reactions.length)
                 return {
                     statusCode: HttpStatus.OK
                 }

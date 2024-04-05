@@ -9,6 +9,8 @@ import { BlogModule } from './components/blog/blog.module';
 import { CommentModule } from './components/comment/comment.module';
 import { UserModule } from './components/user/user.module';
 import { NotificationModule } from './components/notification/notification.module';
+import { ScheduleModule } from '@nestjs/schedule';
+import { SocketModule } from './components/socket/socket.module';
 
 @Module({
   imports: [
@@ -23,6 +25,8 @@ import { NotificationModule } from './components/notification/notification.modul
     CommentModule,
     UserModule,
     NotificationModule,
+    ScheduleModule.forRoot(),
+    SocketModule
   ],
   controllers: [AppController],
   providers: [AppService, CloudinaryService],

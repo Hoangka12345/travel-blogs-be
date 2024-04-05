@@ -5,7 +5,7 @@ import * as mongoose from 'mongoose';
 @Schema({ timestamps: true })
 export class Notification extends Document {
     @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true })
-    content: string;
+    recipient: string;
 
     @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'Blog', required: true })
     blog: string;
@@ -14,7 +14,7 @@ export class Notification extends Document {
     sender: string;
 
     @Prop({ required: true })
-    recipient: string;
+    content: string;
 }
 
 export const NotificationSchema = SchemaFactory.createForClass(Notification);

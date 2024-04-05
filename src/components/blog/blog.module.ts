@@ -13,8 +13,7 @@ import { UserRepository } from 'src/repositories/user.repository';
 import { User, UserSchema } from 'src/models/user.model';
 import { AuthService } from '../auth/auth.service';
 import { AuthRepository } from 'src/repositories/auth.repository';
-import { UserModule } from '../user/user.module';
-import { BlogGateway } from './blog.gateway';
+import { SocketGateway } from '../socket/socket.gateway';
 
 @Module({
   imports: [
@@ -35,7 +34,7 @@ import { BlogGateway } from './blog.gateway';
     UserRepository,
     AuthService,
     AuthRepository,
-    BlogGateway],
+    SocketGateway],
   exports: [BlogService, BlogRepository],
 })
 export class BlogModule { }
